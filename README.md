@@ -12,7 +12,7 @@ To install python dependencies, make sure that poetry is installed and execute t
 poetry install
 ```
 ### Data
-See `data/DATA.md`
+See `data/README.md`
 
 ### DINO
 Download the full checkpoint for DINO ViT-S/16 from [here](https://github.com/facebookresearch/dino) and place it in `pgn/pgn_models/dino`.
