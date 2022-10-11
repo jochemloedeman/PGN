@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "pgn"
+version = "0.1.0"
+description = ""
+authors = ["Jochem Loedeman <j.m.loedeman@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pytorch-lightning = "^1.7.7"
+clip = {git = "https://github.com/openai/CLIP"}
+torchvision = "^0.13.1"
+ftfy = "^6.1.1"
+regex = "^2022.9.13"
+scipy = "^1.9.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
