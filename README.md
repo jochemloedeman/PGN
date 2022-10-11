@@ -9,7 +9,7 @@ This repository is the official implementation of [Prompt Generation Networks fo
 To install requirements:
 
 ```setup
-pip install -r requirements.txt
+poetry install
 ```
 
 >📋  Describe how to set up the environment, e.g. pip/conda/docker commands, download datasets, etc...
