@@ -39,7 +39,7 @@ vision_models = {
     'dino': DinoPGN,
 }
 
-def train(args):
+def test(args):
     seed_everything(seed=args.seed, workers=True)
 
     vision_model = vision_models[args.vision_model_type]
@@ -169,7 +169,7 @@ def main():
 
     args = parser.parse_args()
 
-    train(args)
+    test(args)
 
 if __name__ == "__main__":
     main()
