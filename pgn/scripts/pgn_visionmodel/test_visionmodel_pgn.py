@@ -43,7 +43,7 @@ def test(args):
     seed_everything(seed=args.seed, workers=True)
 
     vision_model = vision_models[args.vision_model_type]
-    dino_file = "pgn/pgn_models/dino_deitsmall16_pretrain_full_checkpoint.pth"
+    dino_file = "pgn/pgn_models/dino/dino_deitsmall16_pretrain_full_checkpoint.pth"
     dino_path = Path(__file__).parents[3] / dino_file
     
     datamodule = datamodules[args.dataset](
