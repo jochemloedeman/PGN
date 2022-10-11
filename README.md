@@ -1,8 +1,6 @@
->📋  A template README.md for code accompanying a Machine Learning paper
+# Prompt Generation Networks for Efficient Adaptation of Frozen Vision Transformers
 
-# My Paper Title
-
-This repository is the official implementation of [My Paper Title](https://arxiv.org/abs/2030.12345). 
+This repository is the official implementation of [Prompt Generation Networks for Efficient Adaptation of Frozen Vision Transformers](https://arxiv.org/abs/2030.12345). 
 
 >📋  Optional: include a graphic explaining your approach/main result, bibtex entry, link to demos, blog posts and tutorials
 
