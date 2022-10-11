@@ -1,3 +1,4 @@
+from os import PathLike
 from typing import Optional, List
 
 import pytorch_lightning as pl
@@ -21,10 +22,10 @@ class PGNCLIP(pl.LightningModule):
             optimizer: Optional[str] = 'sgd',
             warmup_epochs: Optional[int] = 50,
             init_lr: Optional[float] = 40,
-            entropy_loss_coeff: Optional[float] = 0,
             lr_scheduler: Optional[str] = 'cosine',
             epochs: Optional[int] = 150,
             pgn_settings: Optional[dict] = None,
+            pgn_path: Optional[PathLike] = None,
             disable_loggers: Optional[bool] = False,
     ) -> None:
 
@@ -33,7 +34,20 @@ class PGNCLIP(pl.LightningModule):
         self.clip_model, _ = clip.load(clip_architecture, device='cpu')
         self._freeze_components()
         self._create_metrics()
-        self._build_pgn_module(pgn_settings)
+        if pgn_path:
+            self._load_pgn_module(pgn_path, pgn_settings)
+        else:
+            self._build_pgn_module(pgn_settings)
+
+    def _load_pgn_module(self, pgn_path, pgn_settings):
+        pgn_module = TLPGN(
+            **pgn_settings
+        )
+        
+        pgn_module.load_state_dict(
+            state_dict=torch.load(pgn_path)
+        )
+        self.pgn_module = pgn_module
 
     def _build_pgn_module(self, pgn_settings):
         if not pgn_settings:

@@ -1,18 +1,19 @@
+import random
 from typing import Optional, List
 
 import pytorch_lightning as pl
 import torch
 import torchmetrics
-import torchvision.models
 from clip.simple_tokenizer import SimpleTokenizer
 from torch.nn.functional import cross_entropy
 from pgn.lr_schedulers.cosine_with_warmup import CosineWithWarmup
 from pgn.pgn_models.iip import IIP
-
 from pgn.pgn_models.tlpgn import TLPGN
 
+from pgn.pgn_models.vision_transformer import DINOHead
 
-class ViTPGN(pl.LightningModule):
+
+class DinoPGN(pl.LightningModule):
     eot_token = SimpleTokenizer().encoder["<|endoftext|>"]
 
     def __init__(
@@ -20,31 +21,35 @@ class ViTPGN(pl.LightningModule):
             optimizer: str,
             warmup_epochs: int,
             nr_of_classes: int,
+            ckpt_path: str,
             init_lr: Optional[float] = 40,
-            entropy_loss_coeff: Optional[float] = 0,
             lr_scheduler: Optional[str] = 'cosine',
             epochs: Optional[int] = 150,
             pgn_settings: Optional[dict] = None,
-            random_classifier: Optional[bool] = False,
-            **kwargs,
+            random_classifier: Optional[bool] = False
     ) -> None:
 
         super().__init__()
         self.save_hyperparameters()
-        self.vit_model = self._build_vision_model()
+        self.dino_vit, self.dino_head = self._build_vision_model()
         self._freeze_components()
         self._create_metrics()
         self._build_pgn_module(pgn_settings)
 
     def _build_vision_model(self):
-        vit_model = torchvision.models.vit_b_32(
-            weights=torchvision.models.ViT_B_32_Weights.IMAGENET1K_V1
-        )
-        if self.hparams.random_classifier:
-            vit_model.heads = torch.nn.Sequential(
-                torch.nn.Linear(768, self.hparams.nr_of_classes)
-            )
-        return vit_model
+        vits16 = torch.hub.load('facebookresearch/dino:main', 'dino_vits16')
+        state_dict = torch.load(self.hparams.ckpt_path)['student']
+        state_dict = {k: v for k, v in state_dict.items() if k.startswith('module.head.')}
+        state_dict = {k.replace("module.head.", ""): v for k, v in state_dict.items()}
+        head = DINOHead(in_dim=384, out_dim=65536)
+        head.load_state_dict(state_dict)
+        new_ll = torch.nn.Linear(256, self.hparams.nr_of_classes, bias=False)
+        if not self.hparams.random_classifier:
+            output_indices = random.sample(list(range(65536)),
+                                           k=self.hparams.nr_of_classes)
+            new_ll.weight = torch.nn.Parameter(head.last_layer.weight[output_indices])
+        head.last_layer = new_ll
+        return vits16, head
 
     def _build_pgn_module(self, pgn_settings):
         if not pgn_settings:
@@ -145,53 +150,34 @@ class ViTPGN(pl.LightningModule):
         if images.dim == 3:
             images = images.unsqueeze(0)
 
-        if self.input_dependent_prompt:
-            visual_context, mixture_logits = self.input_dependent_prompt(images)
+        if self.pgn_module:
+            visual_context = self.pgn_module(images)
 
             video_features = self._modified_visual_encode(images,
                                                           visual_context)
         else:
             video_features = self._modified_visual_encode(images)
-            mixture_logits = None
 
-        return video_features, mixture_logits
+        video_features = self.dino_head(video_features)
+        return video_features
 
     def _modified_visual_encode(self, x, context=None):
-        # Reshape and permute the input tensor
-        x = self.vit_model._process_input(x)
-        n = x.shape[0]
-
-        # Expand the class token to the full batch
-        batch_class_token = self.vit_model.class_token.expand(n, -1, -1)
-        x = torch.cat([batch_class_token, x], dim=1)
+        x = self.dino_vit.prepare_tokens(x)
         if context is not None:
-            torch._assert(x.dim() == 3,
-                          f"Expected (batch_size, seq_length, hidden_dim) got {x.shape}")
-            x = x + self.vit_model.encoder.pos_embedding
             x = torch.cat(
                 [x, context],
                 dim=1
             )
-            x = self.vit_model.encoder.ln(
-                self.vit_model.encoder.layers(
-                    self.vit_model.encoder.dropout(x)
-                )
-            )
-        else:
-            x = self.vit_model.encoder(x)
-
-        # Classifier "token" as used by standard language architectures
-        x = x[:, 0]
-
-        x = self.vit_model.heads(x)
-
-        return x
+        for blk in self.dino_vit.blocks:
+            x = blk(x)
+        x = self.dino_vit.norm(x)
+        return x[:, 0]
 
     def _freeze_components(self) -> None:
-        for param in self.vit_model.parameters():
+        for param in self.dino_vit.parameters():
             param.requires_grad = False
-        for param in self.vit_model.heads.parameters():
-            param.requires_grad = True
+        for param in self.dino_head.parameters():
+            param.requires_grad = False
 
     def on_fit_start(self) -> None:
         self.hparams['nr_of_classes'] = self.trainer.datamodule.nr_of_classes
