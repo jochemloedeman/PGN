@@ -1,9 +1,4 @@
-from typing import List, Optional, Callable
-
-import torch
-import torchvision
 from torch import nn
-from torchvision.utils import _log_api_usage_once
 
 class ResNet(nn.Module):
 
