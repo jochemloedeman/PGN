@@ -41,7 +41,7 @@ Pre-trained PGNs are supplied in [`pretrained_pgns/`](pretrained_pgns). To use t
 # Reference
 If you find this repository is useful for your project, please consider citing our paper:
 ```bibtex
-@article{Loedeman2022,
+@article{Loedeman2022prompt,
     author       = "Jochem Loedeman and Maarten Stol and Tengda Han and Yuki M Asano",
     title        = "Prompt Generation Networks for Efficient Adaptation of Frozen Vision Transformers",
     journal      = "arxiv preprint arxiv:2030.12345",
