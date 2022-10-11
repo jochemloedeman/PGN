@@ -13,7 +13,7 @@ from pgn.pgn_models.tlpgn import TLPGN
 from pgn.pgn_models.vision_transformer import DINOHead
 
 
-class DinoIDP(pl.LightningModule):
+class DinoPGN(pl.LightningModule):
     eot_token = SimpleTokenizer().encoder["<|endoftext|>"]
 
     def __init__(

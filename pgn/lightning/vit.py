@@ -12,7 +12,7 @@ from pgn.pgn_models.iip import IIP
 from pgn.pgn_models.tlpgn import TLPGN
 
 
-class VisionIDP(pl.LightningModule):
+class ViTPGN(pl.LightningModule):
     eot_token = SimpleTokenizer().encoder["<|endoftext|>"]
 
     def __init__(
