@@ -6,13 +6,14 @@ This repository is the official implementation of [Prompt Generation Networks fo
 
 ## Requirements
 
-To install requirements:
+To install python dependencies:
 
 ```setup
 poetry install
 ```
+### Data
 
->📋  Describe how to set up the environment, e.g. pip/conda/docker commands, download datasets, etc...
+### Pre-Trained PGNs
 
 ## Training
 
