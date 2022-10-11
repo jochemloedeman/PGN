@@ -15,7 +15,7 @@ poetry install
 See [`data/README.md`](data/README.md)
 
 ### DINO
-Download the full checkpoint for DINO ViT-S/16 from [here](https://github.com/facebookresearch/dino) and insert it as `pgn/pgn_models/dino/dino_deitsmall16_pretrain_full_checkpoint`.
+Download the full checkpoint for DINO ViT-S/16 from [here](https://github.com/facebookresearch/dino) and insert it as `pgn/pgn_models/dino/dino_deitsmall16_pretrain_full_checkpoint.pth`.
 
 ## Training
 
