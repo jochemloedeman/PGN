@@ -2,7 +2,7 @@
 
 This repository is the official implementation of [Prompt Generation Networks for Efficient Adaptation of Frozen Vision Transformers](https://arxiv.org/abs/2030.12345). 
 
-![](./figure/arch.png)
+![](./figure/arch.jpg)
 
 ## Requirements
 
