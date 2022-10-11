@@ -26,7 +26,6 @@ class PGNCLIP(pl.LightningModule):
             epochs: Optional[int] = 150,
             pgn_settings: Optional[dict] = None,
             pgn_path: Optional[PathLike] = None,
-            disable_loggers: Optional[bool] = False,
     ) -> None:
 
         super().__init__()

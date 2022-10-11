@@ -1,8 +1,12 @@
 import argparse
+from pathlib import Path
 
 from pgn.lightning.pgn_clip import PGNCLIP
 import pytorch_lightning as pl
 from pytorch_lightning import seed_everything
+
+from pgn.lightning.pgn_dino import DinoPGN
+from pgn.lightning.pgn_vit import ViTPGN
 
 from pgn.datamodules import \
     CIFAR100DataModule, DTDDataModule, SUN397DataModule, Food101DataModule, \
@@ -26,14 +30,22 @@ datamodules = {
 }
 
 visual_embedding_dims = {
-    'ViT-B/32': 768,
-    'ViT-B/16': 768,
-    'ViT-L/14': 1024,
+    'vit': 768,
+    'dino': 384
 }
 
-def test(args):
+vision_models = {
+    'vit': ViTPGN,
+    'dino': DinoPGN,
+}
+
+def train(args):
     seed_everything(seed=args.seed, workers=True)
 
+    vision_model = vision_models[args.vision_model_type]
+    dino_file = "pgn/pgn_models/dino_deitsmall16_pretrain_full_checkpoint.pth"
+    dino_path = Path(__file__).parents[3] / dino_file
+    
     datamodule = datamodules[args.dataset](
         data_root=args.data_root,
         train_batch_size=args.train_batch_size,
@@ -50,7 +62,7 @@ def test(args):
             'prompt_mode': args.prompt_mode,
             'pgn_resolution': args.pgn_resolution,
             'nr_output_vectors': args.pgn_length,
-            'vector_dim': visual_embedding_dims[args.architecture],
+            'vector_dim': visual_embedding_dims[args.vision_model_type],
             'mixture_size': args.pgn_mixture_size,
             'pretrained_pgn': args.pretrained_pgn,
             'model_type': args.pgn_model_type,
@@ -60,19 +72,20 @@ def test(args):
             'blocks_per_group': args.blocks_per_group,
             'initial_channels': args.initial_channels,
             'init_max_pool': args.init_max_pool
-
         }
     else:
         pgn_settings = None
 
-    pgn_clip = PGNCLIP(
-        clip_architecture=args.architecture,
+    vision_model = vision_model(
         pgn_settings=pgn_settings,
         optimizer=args.optimizer,
+        ckpt_path=dino_path,
         init_lr=args.init_lr,
         lr_scheduler=args.lr_scheduler,
         warmup_epochs=args.warmup_epochs,
         epochs=args.epochs,
+        nr_of_classes=datamodule.nr_of_classes,
+        random_classifier=args.random_classifier,
         pgn_path=args.pgn_model_path,
     )
 
@@ -84,7 +97,7 @@ def test(args):
     )
 
     trainer.test(
-        model=pgn_clip,
+        model=vision_model,
         datamodule=datamodule,
     )
 
@@ -103,16 +116,20 @@ def main():
     parser.add_argument('--solarize_prob', default=0.2, type=float)
 
     # Model + Training
-    parser.add_argument('--pgn_model_path', default='checkpoints/pgn_clip/cifar100/pgn_clip_cifar100.pt', type=str)
-    parser.add_argument('--architecture', default='ViT-B/32', type=str)
-    parser.add_argument('--train_batch_size', default=64, type=int)
-    parser.add_argument('--val_batch_size', default=64, type=int)
+    parser.add_argument('--pgn_model_path', default='checkpoints/pgn_dino/cifar100/pgn_dino_cifar100.pt', type=str)
+    parser.add_argument('--vision_model_type', default='dino',
+                        type=str)
+    parser.add_argument('--train_batch_size', default=32, type=int)
+    parser.add_argument('--val_batch_size', default=32, type=int)
     parser.add_argument('--precision', default=32, type=int)
+    parser.add_argument('--random_classifier',
+                        action=argparse.BooleanOptionalAction,
+                        default=False)
 
     # PGN
     parser.add_argument('--pgn_length', default=16, type=int)
     parser.add_argument('--prompt_mode', default='pgn', type=str)
-    parser.add_argument('--pgn_mixture_size', default=256, type=int)
+    parser.add_argument('--pgn_mixture_size', default=128, type=int)
     parser.add_argument('--pgn_act_fn', default='softmax', type=str)
 
     # PGN Model
@@ -146,10 +163,13 @@ def main():
                         default=False)
     parser.add_argument('--pretrained_pgn', action=argparse.BooleanOptionalAction,
                         default=False)
+    parser.add_argument('--disable_loggers',
+                        action=argparse.BooleanOptionalAction,
+                        default=False)
 
     args = parser.parse_args()
 
-    test(args)
+    train(args)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

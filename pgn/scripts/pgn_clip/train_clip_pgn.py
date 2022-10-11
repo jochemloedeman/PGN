@@ -31,7 +31,7 @@ visual_embedding_dims = {
     'ViT-L/14': 1024,
 }
 
-def main(args):
+def train(args):
     seed_everything(seed=args.seed, workers=True)
 
     datamodule = datamodules[args.dataset](
@@ -73,7 +73,6 @@ def main(args):
         lr_scheduler=args.lr_scheduler,
         warmup_epochs=args.warmup_epochs,
         epochs=args.epochs,
-        disable_loggers=args.disable_loggers
     )
 
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
@@ -106,7 +105,7 @@ def main(args):
     )
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser()
 
     # Dataset
@@ -162,10 +161,7 @@ if __name__ == '__main__':
                         default=False)
     parser.add_argument('--pretrained_pgn', action=argparse.BooleanOptionalAction,
                         default=False)
-    parser.add_argument('--disable_loggers',
-                        action=argparse.BooleanOptionalAction,
-                        default=False)
-
+                        
     args = parser.parse_args()
 
-    main(args)
+    train(args)

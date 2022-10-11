@@ -1,3 +1,4 @@
+from os import PathLike
 import random
 from typing import Optional, List
 
@@ -26,6 +27,7 @@ class DinoPGN(pl.LightningModule):
             lr_scheduler: Optional[str] = 'cosine',
             epochs: Optional[int] = 150,
             pgn_settings: Optional[dict] = None,
+            pgn_path: Optional[PathLike] = None,
             random_classifier: Optional[bool] = False
     ) -> None:
 
@@ -34,7 +36,10 @@ class DinoPGN(pl.LightningModule):
         self.dino_vit, self.dino_head = self._build_vision_model()
         self._freeze_components()
         self._create_metrics()
-        self._build_pgn_module(pgn_settings)
+        if pgn_path:
+            self._load_pgn_module(pgn_path, pgn_settings)
+        else:
+            self._build_pgn_module(pgn_settings)
 
     def _build_vision_model(self):
         vits16 = torch.hub.load('facebookresearch/dino:main', 'dino_vits16')
@@ -50,6 +55,16 @@ class DinoPGN(pl.LightningModule):
             new_ll.weight = torch.nn.Parameter(head.last_layer.weight[output_indices])
         head.last_layer = new_ll
         return vits16, head
+
+    def _load_pgn_module(self, pgn_path, pgn_settings):
+        pgn_module = TLPGN(
+            **pgn_settings
+        )
+        
+        pgn_module.load_state_dict(
+            state_dict=torch.load(pgn_path)
+        )
+        self.pgn_module = pgn_module
 
     def _build_pgn_module(self, pgn_settings):
         if not pgn_settings:

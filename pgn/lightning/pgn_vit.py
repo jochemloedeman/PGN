@@ -1,3 +1,4 @@
+from os import PathLike
 from typing import Optional, List
 
 import pytorch_lightning as pl
@@ -24,6 +25,7 @@ class ViTPGN(pl.LightningModule):
             lr_scheduler: Optional[str] = 'cosine',
             epochs: Optional[int] = 150,
             pgn_settings: Optional[dict] = None,
+            pgn_path: Optional[PathLike] = None,
             random_classifier: Optional[bool] = False,
             **kwargs,
     ) -> None:
@@ -33,7 +35,10 @@ class ViTPGN(pl.LightningModule):
         self.vit_model = self._build_vision_model()
         self._freeze_components()
         self._create_metrics()
-        self._build_pgn_module(pgn_settings)
+        if pgn_path:
+            self._load_pgn_module(pgn_path, pgn_settings)
+        else:
+            self._build_pgn_module(pgn_settings)
 
     def _build_vision_model(self):
         vit_model = torchvision.models.vit_b_32(
@@ -44,6 +49,16 @@ class ViTPGN(pl.LightningModule):
                 torch.nn.Linear(768, self.hparams.nr_of_classes)
             )
         return vit_model
+
+    def _load_pgn_module(self, pgn_path, pgn_settings):
+        pgn_module = TLPGN(
+            **pgn_settings
+        )
+        
+        pgn_module.load_state_dict(
+            state_dict=torch.load(pgn_path)
+        )
+        self.pgn_module = pgn_module
 
     def _build_pgn_module(self, pgn_settings):
         if not pgn_settings:
@@ -144,16 +159,15 @@ class ViTPGN(pl.LightningModule):
         if images.dim == 3:
             images = images.unsqueeze(0)
 
-        if self.input_dependent_prompt:
-            visual_context, mixture_logits = self.input_dependent_prompt(images)
+        if self.pgn_module:
+            visual_context = self.pgn_module(images)
 
             video_features = self._modified_visual_encode(images,
                                                           visual_context)
         else:
             video_features = self._modified_visual_encode(images)
-            mixture_logits = None
 
-        return video_features, mixture_logits
+        return video_features
 
     def _modified_visual_encode(self, x, context=None):
         # Reshape and permute the input tensor

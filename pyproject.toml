@@ -14,7 +14,12 @@ ftfy = "^6.1.1"
 regex = "^2022.9.13"
 scipy = "^1.9.2"
 
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+train_clip = "pgn.scripts.pgn_clip.train_clip_pgn:main()"
+test_clip = "pgn.scripts.pgn_clip.test_clip_pgn:main()"
+train_visionmodel = "pgn.scripts.pgn_visionmodel.train_visionmodel_pgn:main()"
+test_visionmodel = "pgn.scripts.pgn_visionmodel.test_visionmodel_pgn:main()"
