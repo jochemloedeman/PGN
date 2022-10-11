@@ -35,8 +35,8 @@ poetry run test_visionmodel
 
 For all available command line arguments, see [`pgn/scripts`](pgn/scripts).
 
-## Pre-trained PGNs
-Pre-trained PGNs are supplied in [`pretrained_pgns/`](pretrained_pgns). To use them in the context of this repository, specify the desired model by setting the `--pgn_path` argument in the test scripts.
+## Pretrained PGNs
+Pretrained PGNs are supplied in [`pretrained_pgns/`](pretrained_pgns). To use them in the context of this repository, specify the desired model by setting the `--pgn_path` argument in the test scripts.
 
 # Reference
 If you find this repository is useful for your project, please consider citing our paper:
