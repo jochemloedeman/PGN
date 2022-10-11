@@ -15,6 +15,7 @@ data/
 |–– sun397
 |–– svhn/
 |–– ucf101/
+|–– create_clevr_annotations.py
 |–– DATA.md
 ```
 
