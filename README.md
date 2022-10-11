@@ -6,7 +6,7 @@ This repository is the official implementation of [Prompt Generation Networks fo
 
 ## Requirements
 
-To install python dependencies, make sure that poetry is installed and execute the following in the project root directory:
+To install python dependencies, make sure that [poetry](https://pypi.org/project/poetry/) is installed and execute the following in the project root directory:
 
 ```setup
 poetry install
