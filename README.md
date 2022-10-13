@@ -1,6 +1,6 @@
 # Prompt Generation Networks for Efficient Adaptation of Frozen Vision Transformers
 
-This repository is the official implementation of [Prompt Generation Networks for Efficient Adaptation of Frozen Vision Transformers](https://arxiv.org/abs/2030.12345) by Jochem Loedeman, Maarten Stol, Tengda Han and Yuki M Asano.
+This repository is the official implementation of [Prompt Generation Networks for Efficient Adaptation of Frozen Vision Transformers](https://arxiv.org/abs/2210.06466) by Jochem Loedeman, Maarten Stol, Tengda Han and Yuki M Asano.
 
 <img src="figure/arch.png" alt="drawing" width="1000"/>
 
@@ -44,7 +44,7 @@ If you find this repository is useful for your project, please consider citing o
 @article{Loedeman2022prompt,
     author       = "Jochem Loedeman and Maarten Stol and Tengda Han and Yuki M Asano",
     title        = "Prompt Generation Networks for Efficient Adaptation of Frozen Vision Transformers",
-    journal      = "arxiv preprint arxiv:2030.12345",
+    journal      = "arxiv preprint arxiv:2210.06466",
     year         = "2022",
 }
 ```
