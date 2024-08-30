@@ -1,6 +1,6 @@
-# Prompt Generation Networks for Efficient Adaptation of Frozen Vision Transformers
+# Prompt Generation Networks for Input-Space Adaptation of Frozen Vision Transformers
 
-This repository is the official implementation of [Prompt Generation Networks for Efficient Adaptation of Frozen Vision Transformers](https://arxiv.org/abs/2210.06466) by Jochem Loedeman, Maarten Stol, Tengda Han and Yuki M Asano.
+This repository is the official implementation of [Prompt Generation Networks for Input-Space Adaptation of Frozen Vision Transformers](https://arxiv.org/abs/2210.06466) by Jochem Loedeman, Maarten Stol, Tengda Han and Yuki M Asano.
 
 <img src="figure/arch.png" alt="drawing" width="1000"/>
 
