@@ -43,7 +43,7 @@ If you find this repository is useful for your project, please consider citing o
 ```bibtex
 @article{Loedeman2022prompt,
     author       = "Jochem Loedeman and Maarten Stol and Tengda Han and Yuki M Asano",
-    title        = "Prompt Generation Networks for Efficient Adaptation of Frozen Vision Transformers",
+    title        = "Prompt Generation Networks for Input-based Adaptation of Frozen Vision Transformers",
     journal      = "arxiv preprint arxiv:2210.06466",
     year         = "2022",
 }
